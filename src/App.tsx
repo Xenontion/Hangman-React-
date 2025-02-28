@@ -31,7 +31,7 @@ const Hangman: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>Игра Вешалка</h1>
+      <h1>Гра Повішання(вгадай слово)</h1>
       <p className="word-display">{displayWord}</p>
       <p>Ошибки: {incorrectGuesses} / {maxAttempts}</p>
       {!isGameOver && !isGameWon && (
