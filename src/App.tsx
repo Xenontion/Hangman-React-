@@ -49,7 +49,7 @@ const Hangman: React.FC = () => {
         setWord(getRandomWord());
         setGuessedLetters([]);
         setIncorrectGuesses(0);
-      }}>Начать заново</button>
+      }}>Почати заново</button>
     </div>
   );
 };
