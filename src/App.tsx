@@ -1,55 +1,60 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import WordDisplay from "./WordDisplay";
+import Keyboard from "./Keyboard";
 import "./styles.css";
 
-const words = ["react", "typescript", "javascript", "programming", "developer"];
-
+const words = ["реакція", "програмування", "розробник", "алгоритм", "інтерфейс"];
 const getRandomWord = () => words[Math.floor(Math.random() * words.length)];
+const maxAttempts = 6;
+const timeLimit = 30;
 
-const Hangman: React.FC = () => {
-  const [word, setWord] = useState<string>(getRandomWord());
+const Hangman = () => {
+  const [word, setWord] = useState(getRandomWord());
   const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
-  const [incorrectGuesses, setIncorrectGuesses] = useState<number>(0);
+  const [incorrectGuesses, setIncorrectGuesses] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(timeLimit);
+  const [gameOver, setGameOver] = useState(false);
 
-  const maxAttempts = 6;
+  const isGameWon = word.split('').every(letter => guessedLetters.includes(letter));
+  const isGameOver = incorrectGuesses >= maxAttempts || gameOver;
+
+  useEffect(() => {
+    if (timeLeft > 0 && !isGameOver && !isGameWon) {
+      const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
+      return () => {
+        clearTimeout(timer);
+      };
+    } else if (timeLeft === 0) {
+      setGameOver(true);
+    }
+  }, [timeLeft, isGameOver, isGameWon]);
 
   const handleGuess = (letter: string) => {
-    if (guessedLetters.includes(letter) || incorrectGuesses >= maxAttempts) return;
-
-    setGuessedLetters([...guessedLetters, letter]);
+    if (guessedLetters.includes(letter) || isGameOver) return;
+    setGuessedLetters(prev => [...prev, letter]);
     if (!word.includes(letter)) {
-      setIncorrectGuesses(incorrectGuesses + 1);
+      setIncorrectGuesses(prev => prev + 1);
     }
   };
 
-  const displayWord = word
-    .split("")
-    .map((letter) => (guessedLetters.includes(letter) ? letter : "_"))
-    .join(" ");
-
-  const isGameWon = displayWord.replace(/ /g, "") === word;
-  const isGameOver = incorrectGuesses >= maxAttempts;
+  const restartGame = () => {
+    setWord(getRandomWord());
+    setGuessedLetters([]);
+    setIncorrectGuesses(0);
+    setTimeLeft(timeLimit);
+    setGameOver(false);
+  };
 
   return (
     <div className="container">
-      <h1> Гра Повішання(вгадай слово) </h1>
-      <p className="word-display">{displayWord}</p>
-      <p>Ошибки: {incorrectGuesses} / {maxAttempts}</p>
-      {!isGameOver && !isGameWon && (
-        <div className="keyboard">
-          {"abcdefghijklmnopqrstuvwxyz".split("").map((letter) => (
-            <button key={letter} onClick={() => handleGuess(letter)} disabled={guessedLetters.includes(letter)}>
-              {letter}
-            </button>
-          ))}
-        </div>
-      )}
-      {isGameWon && <p className="result" style={{ color: "green" }}>Вітаю ви перемогли!</p>}
+      <h1>Гра Повішання(Вгадай Слово)</h1>
+      <WordDisplay word={word} guessedLetters={guessedLetters} />
+      <p>Помилки: {incorrectGuesses} / {maxAttempts}</p>
+      <p>Час: {timeLeft} сек</p>
+      {!isGameOver && !isGameWon && <Keyboard guessedLetters={guessedLetters} onGuess={handleGuess} />}
+      {isGameWon && <p className="result" style={{ color: "green" }}>Вітаю, ви перемогли!</p>}
       {isGameOver && <p className="result" style={{ color: "red" }}>Ви програли. Загадане слово: {word}</p>}
-      <button className="restart-btn" onClick={() => {
-        setWord(getRandomWord());
-        setGuessedLetters([]);
-        setIncorrectGuesses(0);
-      }}>Почати заново</button>
+      <button className="restart-btn" onClick={restartGame}>Почати заново</button>
     </div>
   );
 };
