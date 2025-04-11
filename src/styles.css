@@ -37,3 +37,24 @@ body {
     border: none;
     cursor: pointer;
 }  
+
+.player {
+    margin-bottom: 20px;
+}
+  
+.word-display {
+    font-size: 1.5em;
+    letter-spacing: 2px;
+}
+  
+.keyboard button {
+    font-size: 1.2em;
+    margin: 5px;
+    padding: 10px;
+    background-color: #f0f0f0;
+}
+  
+.restart-btn {
+    padding: 10px 20px;
+    font-size: 1.2em;
+}

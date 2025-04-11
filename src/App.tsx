@@ -1,60 +1,104 @@
 import { useState, useEffect } from "react";
-import WordDisplay from "./WordDisplay";
-import Keyboard from "./Keyboard";
+import WordDisplay from "./components/WordDisplay";
+import Keyboard from "./components/Keyboard/Keyboard";
+import GameSetup from "./components/GameSetup";
+import GameInfo from "./components/GameInfo";
 import "./styles.css";
 
 const words = ["реакція", "програмування", "розробник", "алгоритм", "інтерфейс"];
 const getRandomWord = () => words[Math.floor(Math.random() * words.length)];
 const maxAttempts = 6;
-const timeLimit = 30;
+const baseTimeLimit = 30;
+const bonusTime = 30;
 
 const Hangman = () => {
+  const [totalRounds, setTotalRounds] = useState<number | null>(null);
+  const [currentRound, setCurrentRound] = useState(1);
   const [word, setWord] = useState(getRandomWord());
   const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
   const [incorrectGuesses, setIncorrectGuesses] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(timeLimit);
+  const [timeLeft, setTimeLeft] = useState(baseTimeLimit);
   const [gameOver, setGameOver] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
   const isGameWon = word.split('').every(letter => guessedLetters.includes(letter));
-  const isGameOver = incorrectGuesses >= maxAttempts || gameOver;
 
   useEffect(() => {
-    if (timeLeft > 0 && !isGameOver && !isGameWon) {
+    if (timeLeft > 0 && !gameOver && gameStarted) {
       const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
-      return () => {
-        clearTimeout(timer);
-      };
-    } else if (timeLeft === 0) {
+      return () => clearTimeout(timer);
+    } else if (timeLeft === 0 && gameStarted) {
       setGameOver(true);
     }
-  }, [timeLeft, isGameOver, isGameWon]);
+  }, [timeLeft, gameOver, gameStarted]);
+
+  useEffect(() => {
+    if (isGameWon) {
+      if (currentRound < (totalRounds || 0)) {
+        setTimeout(() => {
+          setWord(getRandomWord());
+          setGuessedLetters([]);
+          setIncorrectGuesses(0);
+          setTimeLeft(prev => prev + bonusTime);
+          setCurrentRound(prev => prev + 1);
+        }, 1000);
+      } else {
+        setGameOver(true);
+      }
+    } else if (incorrectGuesses >= maxAttempts) {
+      setGameOver(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGameWon, incorrectGuesses]);
 
   const handleGuess = (letter: string) => {
-    if (guessedLetters.includes(letter) || isGameOver) return;
+    if (gameOver || guessedLetters.includes(letter)) return;
+
     setGuessedLetters(prev => [...prev, letter]);
     if (!word.includes(letter)) {
       setIncorrectGuesses(prev => prev + 1);
     }
   };
 
-  const restartGame = () => {
+  const startGame = (rounds: number) => {
+    setTotalRounds(rounds);
+    setGameStarted(true);
+    setGameOver(false);
+    setCurrentRound(1);
     setWord(getRandomWord());
     setGuessedLetters([]);
     setIncorrectGuesses(0);
-    setTimeLeft(timeLimit);
+    setTimeLeft(baseTimeLimit);
+  };
+
+  const restart = () => {
+    setGameStarted(false);
+    setTotalRounds(null);
+    setCurrentRound(1);
     setGameOver(false);
+    setTimeLeft(baseTimeLimit);
   };
 
   return (
     <div className="container">
-      <h1>Гра Повішання(Вгадай Слово)</h1>
-      <WordDisplay word={word} guessedLetters={guessedLetters} />
-      <p>Помилки: {incorrectGuesses} / {maxAttempts}</p>
-      <p>Час: {timeLeft} сек</p>
-      {!isGameOver && !isGameWon && <Keyboard guessedLetters={guessedLetters} onGuess={handleGuess} />}
-      {isGameWon && <p className="result" style={{ color: "green" }}>Вітаю, ви перемогли!</p>}
-      {isGameOver && <p className="result" style={{ color: "red" }}>Ви програли. Загадане слово: {word}</p>}
-      <button className="restart-btn" onClick={restartGame}>Почати заново</button>
+      <h1>Гра Повішання (Кілька Раундів)</h1>
+      {!gameStarted ? (
+        <GameSetup totalRounds={totalRounds} setTotalRounds={setTotalRounds} startGame={startGame} />
+      ) : (
+        <GameInfo
+          currentRound={currentRound}
+          totalRounds={totalRounds!}
+          word={word}
+          guessedLetters={guessedLetters}
+          incorrectGuesses={incorrectGuesses}
+          maxAttempts={maxAttempts}
+          timeLeft={timeLeft}
+          isGameWon={isGameWon}
+          gameOver={gameOver}
+          handleGuess={handleGuess}
+          restart={restart}
+        />
+      )}
     </div>
   );
 };
