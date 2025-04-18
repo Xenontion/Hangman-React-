@@ -10,6 +10,7 @@ const getRandomWord = () => words[Math.floor(Math.random() * words.length)];
 const maxAttempts = 6;
 const baseTimeLimit = 30;
 const bonusTime = 30;
+const penaltyTime = 5; 
 
 const Hangman = () => {
   const [totalRounds, setTotalRounds] = useState<number | null>(null);
@@ -48,15 +49,16 @@ const Hangman = () => {
     } else if (incorrectGuesses >= maxAttempts) {
       setGameOver(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGameWon, incorrectGuesses]);
 
   const handleGuess = (letter: string) => {
     if (gameOver || guessedLetters.includes(letter)) return;
 
     setGuessedLetters(prev => [...prev, letter]);
+
     if (!word.includes(letter)) {
       setIncorrectGuesses(prev => prev + 1);
+      setTimeLeft(prev => Math.max(prev - penaltyTime, 0)); 
     }
   };
 
@@ -81,7 +83,7 @@ const Hangman = () => {
 
   return (
     <div className="container">
-      <h1>Гра Повішання (Кілька Раундів)</h1>
+      <h1>Гра Вгадай Слово (Кілька Раундів)</h1>
       {!gameStarted ? (
         <GameSetup totalRounds={totalRounds} setTotalRounds={setTotalRounds} startGame={startGame} />
       ) : (
