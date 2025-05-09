@@ -1,31 +1,31 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
+import { RootState } from "../../store/store";
+import { gameActions, useSelector } from "../../store";
 
-interface KeyboardProps {
-  guessedLetters: string[];
-  onGuess: (letter: string) => void;
-}
+const letters = "абвгґдеєжзиіїйклмнопрстуфхцчшщьюя".split("");
 
-function Keyboard({ guessedLetters, onGuess }: KeyboardProps) {
-  const letters = "абвгґдеєжзиіїйклмнопрстуфхцчшщьюя".split("");
+function Keyboard() {
+  const dispatch = gameActions.useDispatch();
+  const guessedLetters = useSelector((state: RootState) => state.game.guessedLetters);
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    const letter = event.key.toLowerCase();
+    if (letters.includes(letter) && !guessedLetters.includes(letter)) {
+      dispatch(gameActions.guessLetter(letter));
+    }
+  };
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const letter = event.key.toLowerCase();
-      if (letters.includes(letter) && !guessedLetters.includes(letter)) {
-        onGuess(letter);
-      }
-    };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [guessedLetters, onGuess]);
+  });
 
   return (
     <div className="keyboard">
-      {letters.map((letter) => (
+      {letters.map((letter: string) => (
         <button
           key={letter}
-          onClick={() => onGuess(letter)}
+          onClick={() => dispatch(gameActions.guessLetter(letter))}
           disabled={guessedLetters.includes(letter)}
         >
           {letter}

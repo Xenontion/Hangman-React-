@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import "./../styles/GameSetup.css";
+import { useState } from "react";
+import "../styles/GameSetup.css";
 
 interface GameSetupProps {
   totalRounds: number | null;
