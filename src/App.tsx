@@ -4,6 +4,7 @@ import { store } from "./store/store";
 import GamePage from "./pages/GamePage";
 import StartPage from "./pages/StartPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import StatisticsPage from "./pages/StatisticsPage";
 import "./styles/styles.css";
 
 const App = () => {
@@ -13,6 +14,7 @@ const App = () => {
         <Routes>
           <Route path="/" Component={StartPage} />
           <Route path="/game" Component={GamePage} />
+          <Route path="/stats" Component={StatisticsPage} />
           <Route path="*" Component={NotFoundPage} />
         </Routes>
       </Router>

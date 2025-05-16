@@ -43,6 +43,9 @@ const GameContent = () => {
 
       if (wordGuessed) {
         setIsGameWon(true);
+        // Зберігаємо статистику
+        const prev = Number(localStorage.getItem("guessedWords") || 0);
+        localStorage.setItem("guessedWords", String(prev + 1));
         if (rounds && currentRound < rounds) {
           setTimeout(() => {
             const newWord = getRandomEntry();

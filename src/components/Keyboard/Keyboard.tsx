@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { RootState } from "../../store/store";
-import { gameActions, useSelector } from "../../store";
+import { gameActions, useDispatch, useSelector } from "../../store";
 
 const letters = "абвгґдеєжзиіїйклмнопрстуфхцчшщьюя".split("");
 
 function Keyboard() {
-  const dispatch = gameActions.useDispatch();
+  const dispatch = useDispatch();
   const guessedLetters = useSelector((state: RootState) => state.game.guessedLetters);
 
   const handleKeyDown = (event: KeyboardEvent) => {

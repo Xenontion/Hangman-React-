@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/GameSetup.css";
 
 interface GameSetupProps {
@@ -31,6 +32,9 @@ const GameSetup = ({ totalRounds, setTotalRounds, startGame }: GameSetupProps) =
         onChange={(e) => setInputRounds(Number(e.target.value))}
       />
       <button onClick={handleStartGame}>Почати гру</button>
+      <Link to="/" className="stats-btn" style={{ marginTop: 10, textAlign: "center" }}>
+        Повернутися на головну
+      </Link>
       {error && <p className="error-message">{error}</p>}
     </div>
   );
